@@ -6,7 +6,7 @@ public class Magazine extends Publication {
     private String language;
 
     public Magazine(String title, String publisher, int year, int month, int day, String language) {
-        super(year, title, publisher);
+        super(title, publisher, year);
         this.month = month;
         this.day = day;
         this.language = language;
@@ -36,9 +36,12 @@ public class Magazine extends Publication {
         this.language = language;
     }
 
-    public void printInfo() {
-        String info = getTitle() + "; " + getPublisher() + "; " + getYear() + "-" + month + "-" + day + "; " + language;
-        System.out.println(info);
+    @Override
+    public String toString() {
+        return "Magazine{" +
+                "month=" + month +
+                ", day=" + day +
+                ", language='" + language + '\'' +
+                '}';
     }
-
 }
