@@ -1,8 +1,12 @@
 package app;
 
+import exception.DataExportException;
+import exception.DataImportException;
 import exception.NoSuchOptionException;
 import io.ConsolePrinter;
 import io.DataReader;
+import io.file.FileManager;
+import io.file.FileManagerBuilder;
 import model.Book;
 import model.Library;
 import model.Magazine;
@@ -13,8 +17,21 @@ import java.util.InputMismatchException;
 public class LibraryControl {
     private ConsolePrinter printer = new ConsolePrinter();
     private DataReader dataReader = new DataReader(printer);
+    private FileManager fileManager;
 
-    private Library library = new Library();
+    private Library library;
+
+    LibraryControl() {
+        fileManager = new FileManagerBuilder(printer, dataReader).build();
+        try {
+            library = fileManager.importData();
+            printer.printLine("Zaimportowane dane z pliku");
+        } catch (DataImportException e) {
+            printer.printLine(e.getMessage());
+            printer.printLine("Zainicjowano nową bazę.");
+            library = new Library();
+        }
+    }
 
     void controlLoop() {
         Option option;
@@ -101,9 +118,14 @@ public class LibraryControl {
     }
 
     private void exit() {
-        printer.printLine("Koniec programu, papa!");
-        // zamykamy strumień wejścia
+        try {
+            fileManager.exportData(library);
+            printer.printLine("Export danych do pliku zakończony powodzeniem");
+        } catch (DataExportException e) {
+            printer.printLine(e.getMessage());
+        }
         dataReader.close();
+        printer.printLine("Koniec programu, papa!");
     }
 
     private enum Option {
