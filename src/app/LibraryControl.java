@@ -21,17 +21,17 @@ public class LibraryControl {
     private DataReader dataReader = new DataReader(printer);
     private FileManager fileManager;
 
-    private model.Library library;
+    private Library library;
 
     LibraryControl() {
         fileManager = new FileManagerBuilder(printer, dataReader).build();
         try {
-            library = fileManager.importData();
+            library = (Library) fileManager.importData();
             printer.printLine("Zaimportowane dane z pliku");
         } catch (DataImportException | InvalidDataException e) {
             printer.printLine(e.getMessage());
             printer.printLine("Zainicjowano nową bazę.");
-            library = new model.Library();
+            library = new Library();
         }
     }
 
@@ -53,6 +53,12 @@ public class LibraryControl {
                     break;
                 case PRINT_MAGAZINES:
                     printMagazines();
+                    break;
+                case DELETE_BOOK:
+                    deleteBook();
+                    break;
+                case DELETE_MAGAZINE:
+                    deleteMagazine();
                     break;
                 case EXIT:
                     exit();
@@ -119,6 +125,30 @@ public class LibraryControl {
         printer.printMagazines(publications);
     }
 
+    private void deleteMagazine() {
+        try {
+            Magazine magazine = dataReader.readAndCreateMagazine();
+            if (library.removePublication(magazine))
+                printer.printLine("Usunięto magazyn.");
+            else
+                printer.printLine("Brak wskazanego magazynu.");
+        } catch (InputMismatchException e) {
+            printer.printLine("Nie udało się utworzyć magazynu, niepoprawne dane");
+        }
+    }
+
+    private void deleteBook() {
+        try {
+            Book book = dataReader.readAndCreateBook();
+            if (library.removePublication(book))
+                printer.printLine("Usunięto książkę.");
+            else
+                printer.printLine("Brak wskazanej książki.");
+        } catch (InputMismatchException e) {
+            printer.printLine("Nie udało się utworzyć książki, niepoprawne dane");
+        }
+    }
+
     private void exit() {
         try {
             fileManager.exportData(library);
@@ -133,9 +163,11 @@ public class LibraryControl {
     private enum Option {
         EXIT(0, "Wyjście z programu"),
         ADD_BOOK(1, "Dodanie książki"),
-        ADD_MAGAZINE(2, "Dodanie magazynu/gazety"),
+        ADD_MAGAZINE(2,"Dodanie magazynu/gazety"),
         PRINT_BOOKS(3, "Wyświetlenie dostępnych książek"),
-        PRINT_MAGAZINES(4, "Wyświetlenie dostępnych magazynów/gazet");
+        PRINT_MAGAZINES(4, "Wyświetlenie dostępnych magazynów/gazet"),
+        DELETE_BOOK(5, "Usuń książkę"),
+        DELETE_MAGAZINE(6, "Usuń magazyn");
 
         private int value;
         private String description;
@@ -153,7 +185,7 @@ public class LibraryControl {
         static Option createFromInt(int option) throws NoSuchOptionException {
             try {
                 return Option.values()[option];
-            } catch (ArrayIndexOutOfBoundsException e) {
+            } catch(ArrayIndexOutOfBoundsException e) {
                 throw new NoSuchOptionException("Brak opcji o id " + option);
             }
         }

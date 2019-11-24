@@ -4,7 +4,7 @@ import model.Book;
 import model.Magazine;
 import model.Publication;
 
-public class Library {
+public class Library extends model.Library {
 
     private static final int MAX_PUBLICATONS = 2000;
     private int publicationsNumber;
@@ -26,7 +26,7 @@ public class Library {
         addPublication(magazine);
     }
 
-    private void addPublication(Publication publication) {
+    public void addPublication(Publication publication) {
         if (publicationsNumber >= MAX_PUBLICATONS) {
             throw new ArrayIndexOutOfBoundsException("Max publications exceeded " + MAX_PUBLICATONS);
         }
